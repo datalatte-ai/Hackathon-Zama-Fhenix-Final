@@ -3,11 +3,11 @@ const { Wallet, JsonRpcProvider, Contract, ethers } = require('ethers');
 require('dotenv').config();
 const contractInfo = require('./survey_enc_abi.js');
 
-const CONTRACT_ADDRESS = '0x9B50903913B6e13b2874C8c1F52aAb6479D2b61e';
+const CONTRACT_ADDRESS = '0x595c382333D2f9b9727D81443385EE373c0D066F';
 
 const provider = new JsonRpcProvider(`https://devnet.fhenix.io`);
 
-const signer = new Wallet(process.env.PRIVATE_KEY_wallet3, provider);
+const signer = new Wallet(process.env.PRIVATE_KEY_wallet2, provider);
 
 let _instance;
 
@@ -67,19 +67,15 @@ const returnAns = async () => {
     generatedToken.token.message
   );
   instance.setTokenSignature(CONTRACT_ADDRESS, signature);
-  const overrides = {
-    gasLimit: 1000000, // Put your desired gas limit here
-    value: ethers.parseEther("1.0") // Put the amount of ether you want to send here
-  };
-  const encryptedAnswer = await contract.returnAns(generatedToken.publicKey, signature);
+  const encryptedAnswer = await contract.ReturnCountAnswer(generatedToken.publicKey, signature);
 
   const answer = instance.decrypt(CONTRACT_ADDRESS, encryptedAnswer);
   return answer;
 };
 
-// returnAns().then((answer) => {
-//   console.log(answer);
-// });
+returnAns().then((answer) => {
+  console.log(answer);
+});
 
 // const addToMap = async (cid, _ind) => {
 //     // Initialize contract with ethers
@@ -112,20 +108,20 @@ const returnAns = async () => {
 // }
 // log_add()
 
-const returnAnswer = async () => {
-      // Initialize contract with ethers
-      const overrides = {
-        gasLimit: 1000000, // Put your desired gas limit here
-        value: ethers.parseEther("0.0001") // Put the amount of ether you want to send here
-      };
-      const contract = new Contract(CONTRACT_ADDRESS, contractInfo, signer);
-      const transaction = await contract.CalculateQueryAnswer("123456789", "1");
-      const receipt = await transaction.wait();
-      return receipt;
-  }
+// const returnAnswer = async () => {
+//       // Initialize contract with ethers
+//       const overrides = {
+//         gasLimit: 1000000, // Put your desired gas limit here
+//         value: ethers.parseEther("0.001") // Put the amount of ether you want to send here
+//       };
+//       const contract = new Contract(CONTRACT_ADDRESS, contractInfo, signer);
+//       const transaction = await contract.CalculateQueryAnswer("123456789", "1", overrides);
+//       const receipt = await transaction.wait();
+//       return receipt;
+//   }
   
-  async function log_add() {
-      const ls = await returnAnswer();
-      return console.log(ls);
-  }
-  log_add()
+//   async function log_add() {
+//       const ls = await returnAnswer();
+//       return console.log(ls);
+//   }
+//   log_add()

@@ -6,16 +6,15 @@ import "./node_modules/fhevm/lib/TFHE.sol";
 
 contract SurveyEncrypt is EIP712WithModifier {
     euint32 private oneAnswer;
-    address internal contractOwner;
     euint32 internal total_wallet;
     euint32 public zero_value = TFHE.asEuint32(0);
+    address internal contractOwner;
     address[] internal wallet_addresses;
-    constructor() EIP712WithModifier("Authorization token", "1") {
-        contractOwner = msg.sender;
-    }
-
-    mapping(address => mapping(string => euint32)) internal answer;
     
+    mapping(address => mapping(string => euint32)) internal answer;
+    mapping(address => bool) internal clients_payable_wallets;
+    mapping(address => bool) internal clients_payable_length;
+
     struct Data {
     address userAddress;
     string cid;
@@ -23,6 +22,12 @@ contract SurveyEncrypt is EIP712WithModifier {
     }
     // Define an array to hold the structs
     Data[] internal dataArray;
+
+    constructor() EIP712WithModifier("Authorization token", "1") {
+        contractOwner = msg.sender;
+    }
+
+    
     
     
     function ReturnMapAnswer(
@@ -58,6 +63,7 @@ contract SurveyEncrypt is EIP712WithModifier {
         payable
     {
         require(msg.value >= 1e15 , "You must send some Ether");
+        clients_payable_length[msg.sender] = true;
         euint32 _answer = TFHE.asEuint32(_answerfrom);
         euint32 count_wallet = zero_value;
         for (uint i = 0; i < dataArray.length; i++) {
@@ -81,12 +87,13 @@ contract SurveyEncrypt is EIP712WithModifier {
         public
         view
         onlySignedPublicKey(publicKey, signature)
+        AuthorizeClientsLength(msg.sender)
         returns (bytes memory) 
     {
         return TFHE.reencrypt(total_wallet, publicKey);
     }
 
-    function ReturnLengthOfArray() public view returns (uint256) {
+    function ReturnLengthOfArray() public view AuthorizeClientsLength(msg.sender) returns (uint256) {
         return dataArray.length;
     }
 
@@ -98,6 +105,7 @@ contract SurveyEncrypt is EIP712WithModifier {
         payable
     {
         require(msg.value >= 1e15 , "You must send some Ether");
+        clients_payable_wallets[msg.sender] = true;
         euint32 _answer = TFHE.asEuint32(_answerfrom);
         for (uint i = 0; i < dataArray.length; i++) {
             ebool condition = TFHE.eq(dataArray[i].value, _answer);
@@ -110,8 +118,18 @@ contract SurveyEncrypt is EIP712WithModifier {
         }
     }
 
-    function ReturnWallets() public view returns (address[] memory) {
+    function ReturnWallets() public view AuthorizeClientsWallet(msg.sender) returns (address[] memory) {
         return wallet_addresses;
+    }
+
+    modifier AuthorizeClientsWallet(address _wallet) {
+       require(clients_payable_wallets[_wallet], "Your not pay for payable function!!");
+       _; 
+    }
+
+    modifier AuthorizeClientsLength(address _wallet) {
+       require(clients_payable_length[_wallet], "Your not pay for payable function!!");
+       _; 
     }
 
 }

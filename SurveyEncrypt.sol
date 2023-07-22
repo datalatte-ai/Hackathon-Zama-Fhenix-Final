@@ -4,33 +4,37 @@ pragma solidity 0.8.19;
 import "./node_modules/fhevm/abstracts/EIP712WithModifier.sol";
 import "./node_modules/fhevm/lib/TFHE.sol";
 
+// Solidity Contract named SurveyEncrypt inheriting EIP712WithModifier
 contract SurveyEncrypt is EIP712WithModifier {
+    // Define internal and private state variables
     euint32 private oneAnswer;
-    euint32 internal total_wallet;
-    euint32 public zero_value = TFHE.asEuint32(0);
+    euint32 internal totalWallet;
+    euint32 public zeroValue = TFHE.asEuint32(0);
     address internal contractOwner;
-    address[] internal wallet_addresses;
+    address[] internal walletAddresses;
     
+    // Define mappings to store address and associated values
     mapping(address => mapping(string => euint32)) internal answer;
-    mapping(address => bool) internal clients_payable_wallets;
-    mapping(address => bool) internal clients_payable_length;
+    mapping(address => bool) internal clientsPayableWallets;
+    mapping(address => bool) internal clientsPayableLength;
 
+    // Define a struct to hold address, string, and value
     struct Data {
-    address userAddress;
-    string cid;
-    euint32 value;
+        address userAddress;
+        string cid;
+        euint32 value;
     }
+
     // Define an array to hold the structs
     Data[] internal dataArray;
 
+    // Contract constructor
     constructor() EIP712WithModifier("Authorization token", "1") {
         contractOwner = msg.sender;
     }
 
-    
-    
-    
-    function ReturnMapAnswer(
+    // Function to return map answer based on public key, signature, address, and cid
+    function returnMapAnswer(
         bytes32 publicKey,
         bytes calldata signature,
         address _address,
@@ -44,92 +48,94 @@ contract SurveyEncrypt is EIP712WithModifier {
         return TFHE.reencrypt(answer[_address][_cid], publicKey);
     }
 
-    function AddtoMap(string memory cid,uint256 _ind) public {
+    // Function to add to map based on cid and index
+    function addToMap(string memory cid, uint256 _ind) public {
         euint32 ind = TFHE.asEuint32(_ind);
-        if (TFHE.isInitialized(answer[msg.sender][cid])) {
-            require(1==0,"The wallet is exist in contract");
-        } else {
-            answer[msg.sender][cid] = ind;
-        }
+        require(!TFHE.isInitialized(answer[msg.sender][cid]), "The wallet exists in the contract");
+        answer[msg.sender][cid] = ind;
         Data memory newData = Data(msg.sender, cid, ind);
         dataArray.push(newData);
     }
 
-    function CalculateQueryAnswer(
+    // Function to calculate query answer based on cid and answer
+    function calculateQueryAnswer(
         string memory cid,
-        uint256 _answerfrom
+        uint256 _answerFrom
     ) 
         public 
         payable
     {
         require(msg.value >= 1e15 , "You must send some Ether");
-        clients_payable_length[msg.sender] = true;
-        euint32 _answer = TFHE.asEuint32(_answerfrom);
-        euint32 count_wallet = zero_value;
+        clientsPayableLength[msg.sender] = true;
+        euint32 _answer = TFHE.asEuint32(_answerFrom);
+        euint32 countWallet = zeroValue;
         for (uint i = 0; i < dataArray.length; i++) {
             ebool condition = TFHE.eq(dataArray[i].value, _answer);
             euint8 toAdd = TFHE.asEuint8(condition);
 
             // Compare the cid and value
             if (keccak256(abi.encodePacked(dataArray[i].cid)) == keccak256(abi.encodePacked(cid)) && TFHE.isInitialized(toAdd)) {                
-                count_wallet = TFHE.add(count_wallet, toAdd);
+                countWallet = TFHE.add(countWallet, toAdd);
             }
         }
-        total_wallet = count_wallet;
-        
-        // return TFHE.divide(count_wallet, dataArray.length);
+        totalWallet = countWallet;
     }
 
-    function ReturnCountAnswer(
+    // Function to return count answer based on public key and signature
+    function returnCountAnswer(
         bytes32 publicKey,
         bytes calldata signature
     )
         public
         view
         onlySignedPublicKey(publicKey, signature)
-        AuthorizeClientsLength(msg.sender)
+        authorizeClientsLength(msg.sender)
         returns (bytes memory) 
     {
-        return TFHE.reencrypt(total_wallet, publicKey);
+        return TFHE.reencrypt(totalWallet, publicKey);
     }
 
-    function ReturnLengthOfArray() public view AuthorizeClientsLength(msg.sender) returns (uint256) {
+    // Function to return length of array
+    function returnLengthOfArray() public view authorizeClientsLength(msg.sender) returns (uint256) {
         return dataArray.length;
     }
 
-    function CalculateQueryWallet(
+    // Function to calculate query wallet based on cid and answer
+    function calculateQueryWallet(
         string memory cid,
-        uint256 _answerfrom
+        uint256 _answerFrom
     ) 
         public
         payable
     {
         require(msg.value >= 1e15 , "You must send some Ether");
-        clients_payable_wallets[msg.sender] = true;
-        euint32 _answer = TFHE.asEuint32(_answerfrom);
+        clientsPayableWallets[msg.sender] = true;
+        euint32 _answer = TFHE.asEuint32(_answerFrom);
         for (uint i = 0; i < dataArray.length; i++) {
             ebool condition = TFHE.eq(dataArray[i].value, _answer);
             euint8 toAdd = TFHE.asEuint8(condition);
 
             // Compare the cid and value
             if (keccak256(abi.encodePacked(dataArray[i].cid)) == keccak256(abi.encodePacked(cid)) && TFHE.isInitialized(toAdd)) {                
-                wallet_addresses.push(dataArray[i].userAddress);
+                walletAddresses.push(dataArray[i].userAddress);
             }
         }
     }
 
-    function ReturnWallets() public view AuthorizeClientsWallet(msg.sender) returns (address[] memory) {
-        return wallet_addresses;
+    // Function to return wallets
+    function returnWallets() public view authorizeClientsWallet(msg.sender) returns (address[] memory) {
+        return walletAddresses;
     }
 
-    modifier AuthorizeClientsWallet(address _wallet) {
-       require(clients_payable_wallets[_wallet], "Your not pay for payable function!!");
-       _; 
+    // Modifier to authorize client's wallet
+    modifier authorizeClientsWallet(address _wallet) {
+        require(clientsPayableWallets[_wallet], "You did not pay for payable function!");
+        _; 
     }
 
-    modifier AuthorizeClientsLength(address _wallet) {
-       require(clients_payable_length[_wallet], "Your not pay for payable function!!");
-       _; 
+    // Modifier to authorize client's length
+    modifier authorizeClientsLength(address _wallet) {
+        require(clientsPayableLength[_wallet], "You did not pay for payable function!");
+        _; 
     }
-
 }

@@ -12,7 +12,7 @@ module.exports = [
 				"type": "uint256"
 			}
 		],
-		"name": "AddtoMap",
+		"name": "addToMap",
 		"outputs": [],
 		"stateMutability": "nonpayable",
 		"type": "function"
@@ -26,11 +26,11 @@ module.exports = [
 			},
 			{
 				"internalType": "uint256",
-				"name": "_answerfrom",
+				"name": "_answerFrom",
 				"type": "uint256"
 			}
 		],
-		"name": "CalculateQueryAnswer",
+		"name": "calculateQueryAnswer",
 		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"
@@ -44,11 +44,11 @@ module.exports = [
 			},
 			{
 				"internalType": "uint256",
-				"name": "_answerfrom",
+				"name": "_answerFrom",
 				"type": "uint256"
 			}
 		],
-		"name": "CalculateQueryWallet",
+		"name": "calculateQueryWallet",
 		"outputs": [],
 		"stateMutability": "payable",
 		"type": "function"
@@ -136,7 +136,7 @@ module.exports = [
 				"type": "bytes"
 			}
 		],
-		"name": "ReturnCountAnswer",
+		"name": "returnCountAnswer",
 		"outputs": [
 			{
 				"internalType": "bytes",
@@ -149,7 +149,7 @@ module.exports = [
 	},
 	{
 		"inputs": [],
-		"name": "ReturnLengthOfArray",
+		"name": "returnLengthOfArray",
 		"outputs": [
 			{
 				"internalType": "uint256",
@@ -183,7 +183,7 @@ module.exports = [
 				"type": "string"
 			}
 		],
-		"name": "ReturnMapAnswer",
+		"name": "returnMapAnswer",
 		"outputs": [
 			{
 				"internalType": "bytes",
@@ -196,7 +196,7 @@ module.exports = [
 	},
 	{
 		"inputs": [],
-		"name": "ReturnWallets",
+		"name": "returnWallets",
 		"outputs": [
 			{
 				"internalType": "address[]",
@@ -209,7 +209,7 @@ module.exports = [
 	},
 	{
 		"inputs": [],
-		"name": "zero_value",
+		"name": "zeroValue",
 		"outputs": [
 			{
 				"internalType": "euint32",

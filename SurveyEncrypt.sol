@@ -7,7 +7,6 @@ import "./node_modules/fhevm/lib/TFHE.sol";
 // Solidity Contract named SurveyEncrypt inheriting EIP712WithModifier
 contract SurveyEncrypt is EIP712WithModifier {
     // Define internal and private state variables
-    euint32 private oneAnswer;
     euint32 internal totalWallet;
     euint32 public zeroValue = TFHE.asEuint32(0);
     address internal contractOwner;
@@ -79,6 +78,9 @@ contract SurveyEncrypt is EIP712WithModifier {
             }
         }
         totalWallet = countWallet;
+
+        // We have decided to include division functionality, but it has not yet been implemented in your current library.
+        // return TFHE.divide(count_wallet, dataArray.length);
     }
 
     // Function to return count answer based on public key and signature

@@ -3,11 +3,11 @@ const { Wallet, JsonRpcProvider, Contract, ethers } = require('ethers');
 require('dotenv').config();
 const contractInfo = require('./survey_enc_abi.js');
 
-const CONTRACT_ADDRESS = '0xDF8FA8Ce180d2DaaBf84b3bcb37Ff1152e1671c0';
+const CONTRACT_ADDRESS = '0x9B50903913B6e13b2874C8c1F52aAb6479D2b61e';
 
 const provider = new JsonRpcProvider(`https://devnet.fhenix.io`);
 
-const signer = new Wallet(process.env.PRIVATE_KEY_wallet2, provider);
+const signer = new Wallet(process.env.PRIVATE_KEY_wallet3, provider);
 
 let _instance;
 
@@ -119,8 +119,9 @@ const returnAnswer = async () => {
         value: ethers.parseEther("0.0001") // Put the amount of ether you want to send here
       };
       const contract = new Contract(CONTRACT_ADDRESS, contractInfo, signer);
-      const transaction = await contract.ReturnPrecentAnswerTo("123456789", "1", overrides);
-      return transaction;
+      const transaction = await contract.CalculateQueryAnswer("123456789", "1");
+      const receipt = await transaction.wait();
+      return receipt;
   }
   
   async function log_add() {

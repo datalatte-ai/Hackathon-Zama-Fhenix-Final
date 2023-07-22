@@ -79,7 +79,7 @@ contract SurveyEncrypt is EIP712WithModifier {
         }
         totalWallet = countWallet;
 
-        // We have decided to include division functionality, but it has not yet been implemented in your current library.
+        // We needed to include division functionality, but it has not yet been implemented in your current library. Therefore we made a workaround by making the count of total wallet addresses public. 
         // return TFHE.divide(count_wallet, dataArray.length);
     }
 

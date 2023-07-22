@@ -33,5 +33,6 @@ For contributions, please create a pull request, and one of our maintainers will
 We're always working to improve and expand the capabilities of datalatte. Stay tuned for future updates where we plan to:
 
 - Enable non-intrusive targeting, allowing insight buyers to send surveys to targets without revealing their wallet addresses or identities.
-
-Thank you for your interest in datalatte!
+- LLM integration on top of the secondary data 
+- Adding noise for % calculation to not reverse engineer the changes via sandwich query to reveal targeted users' answer
+- Enabling multiple selection on the filter

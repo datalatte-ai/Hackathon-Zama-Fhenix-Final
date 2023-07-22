@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "dotenv": "^16.3.1",
+    "ethers": "^6.6.4",
+    "fhevm": "^0.1.5",
+    "fhevmjs": "^0.1.1",
+    "web3": "^4.0.3"
+  }
+}
